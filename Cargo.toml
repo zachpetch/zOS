@@ -4,13 +4,5 @@ version = "0.1.0"
 edition = "2018"
 authors = ["Zach Petch <zachpetch@gmail.com>"]
 
-# the profile used for `cargo build`
-[profile.dev]
-panic = "abort" # disables stack unwinding on panic, and aborts execution
-
-# the profile used for `cargo build --release`
-[profile.release]
-panic = "abort" # disables stack unwinding on panic, and aborts execution
-
 [dependencies]
 
