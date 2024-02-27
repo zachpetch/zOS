@@ -4,7 +4,7 @@
 
 I'm learning about the underlying structure of operating systems/kernels. Right now, I'm learning by building it up from scratch, with guidance from https://os.phil-opp.com
 
-At the moment (Tuesday, February 27, 2024), `cargo build` compiles the kernal and builds a disk image connected with a bootloadre.
+At the moment (Tuesday, February 27, 2024), `cargo build` compiles the kernal and builds a disk image connected with a bootloader.
 It can be run in a QEMU VM with the following command:
 
 ```
