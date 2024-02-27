@@ -5,4 +5,5 @@ edition = "2018"
 authors = ["Zach Petch <zachpetch@gmail.com>"]
 
 [dependencies]
+bootloader = "0.9"
 
