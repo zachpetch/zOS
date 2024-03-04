@@ -1,16 +1,11 @@
 #![no_std]  // Don't link the Rust standard library
 #![no_main] // Disable all Rust-level entry points
+#![feature(custom_test_frameworks)]
+#![test_runner(zos::test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-
-/// This function is called on panic.
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
-    loop {}
-}
-
-//static HELLO: &[u8] = b"Hello, Friend!";
+use zos::println;
 
 /// This function is the entry point.
 /// The linker looks for a function named `_start` by default, which is why the
@@ -21,9 +16,23 @@ pub extern "C" fn _start() -> ! {
         println!("Hello, {}!", i);
     }
 
-    panic!("A panic message");
+    #[cfg(test)]
+    test_main();
 
-//    loop {}
+    loop {}
 }
 
-mod vga_buffer;
+/// This function is called on panic.
+#[cfg(not(test))]
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
+    loop {}
+}
+
+#[cfg(test)]
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    zos::test_panic_handler(info)
+}
+
