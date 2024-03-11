@@ -12,16 +12,17 @@ use zos::println;
 /// `no_mangle` tag is used (so the compiler won't touch/"mangle" the name).
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    for i in ["World", "Handsom", "Zachariah"] {
-        println!("Hello, {}!", i);
-    }
-
-    zos::init();
-
-    #[cfg(test)]
-    test_main();
-
-    println!("It did not crash, which is good.");
+//    for i in ["World", "Handsom", "Zachariah"] {
+//        println!("Hello, {}!", i);
+//    }
+//
+//    zos::init();
+//
+//    #[cfg(test)]
+//    test_main();
+//
+//    println!("It did not crash, which is good.");
+    println!("Hello, world!");
 
     loop {}
 }
