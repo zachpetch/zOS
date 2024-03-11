@@ -18,7 +18,9 @@ pub extern "C" fn _start() -> ! {
 
     zos::init();
 
-    x86_64::instructions::interrupts::int3();
+    // Trigger a stack overflow
+    fn stack_overflow() { stack_overflow(); }
+    stack_overflow();
 
     #[cfg(test)]
     test_main();
