@@ -1,3 +1,5 @@
+#![allow(warnings)] // TODO: This is dangerous. Remove this to show warnings.
+
 use x86_64::VirtAddr;
 use x86_64::structures::tss::TaskStateSegment;
 use x86_64::structures::gdt::{GlobalDescriptorTable, Descriptor, SegmentSelector};

@@ -15,16 +15,15 @@ pub extern "C" fn _start() -> ! {
 //    for i in ["World", "Handsom", "Zachariah"] {
 //        println!("Hello, {}!", i);
 //    }
-//
-//    zos::init();
-//
-//    #[cfg(test)]
-//    test_main();
-//
-//    println!("It did not crash, which is good.");
-    println!("Hello, world!");
 
-    loop {}
+    zos::init();
+
+    #[cfg(test)]
+    test_main();
+
+//    println!("It did not crash, which is good.");
+
+    zos::hlt_loop();
 }
 
 /// This function is called on panic.
@@ -32,7 +31,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    zos::hlt_loop();
 }
 
 #[cfg(test)]
