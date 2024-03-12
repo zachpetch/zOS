@@ -18,6 +18,16 @@ pub extern "C" fn _start() -> ! {
 
     zos::init();
 
+    let ptr = 0x2031b2 as *mut u8;
+
+    // read
+    unsafe { let x = *ptr; }
+    println!("read worked");
+
+    // write
+    unsafe { *ptr = 42; }
+    println!("write worked");
+
     #[cfg(test)]
     test_main();
 
