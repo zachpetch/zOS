@@ -6,32 +6,45 @@
 
 use core::panic::PanicInfo;
 use zos::println;
+use bootloader::{BootInfo, entry_point};
 
-/// This function is the entry point.
-/// The linker looks for a function named `_start` by default, which is why the
-/// `no_mangle` tag is used (so the compiler won't touch/"mangle" the name).
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(kernel_main);
+
+/// Main entry point
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
+    use zos::memory::BootInfoFrameAllocator;
+    use zos::memory;
+    use x86_64::{structures::paging::Translate, VirtAddr};
+
 //    for i in ["World", "Handsom", "Zachariah"] {
 //        println!("Hello, {}!", i);
 //    }
-
+    println!("Welcome!");
     zos::init();
 
-    let ptr = 0x2031b2 as *mut u8;
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+//    let mut frame_allocator = unsafe {
+//        BootInfoFrameAllocator::init(&boot_info.memory_map)
+//    };
 
-    // read
-    unsafe { let x = *ptr; }
-    println!("read worked");
+    let addresses = [
+        0xb8000,            // the identity-mapped vga buffer page
+        0x201008,           // some code page
+        0x0100_0020_1a10,   // some stack page
+        boot_info.physical_memory_offset, // virt addr mapped to phys address 0
+    ];
 
-    // write
-    unsafe { *ptr = 42; }
-    println!("write worked");
+    for &address in &addresses {
+        let virt = VirtAddr::new(address);
+        let phys = mapper.translate_addr(virt);
+        println!("{:?} -> {:?}", virt, phys);
+    }
 
     #[cfg(test)]
     test_main();
 
-//    println!("It did not crash, which is good.");
+    println!("The system is running (i.e. it has not crashed).");
 
     zos::hlt_loop();
 }
