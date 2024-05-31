@@ -4,42 +4,54 @@
 #![test_runner(zos::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+extern crate alloc;
+
 use core::panic::PanicInfo;
 use zos::println;
 use bootloader::{BootInfo, entry_point};
+use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
+use x86_64::VirtAddr;
 
 entry_point!(kernel_main);
 
 /// Main entry point
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    use zos::memory::BootInfoFrameAllocator;
-    use zos::memory;
-    use x86_64::{structures::paging::Translate, VirtAddr};
+    use zos::allocator;
+    use zos::memory::{self, BootInfoFrameAllocator};
 
-//    for i in ["World", "Handsom", "Zachariah"] {
+//    for i in ["World", "Handsome", "Zachariah"] {
 //        println!("Hello, {}!", i);
 //    }
+
     println!("Welcome!");
     zos::init();
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
-//    let mut frame_allocator = unsafe {
-//        BootInfoFrameAllocator::init(&boot_info.memory_map)
-//    };
+    let mut frame_allocator = unsafe {
+        BootInfoFrameAllocator::init(&boot_info.memory_map)
+    };
 
-    let addresses = [
-        0xb8000,            // the identity-mapped vga buffer page
-        0x201008,           // some code page
-        0x0100_0020_1a10,   // some stack page
-        boot_info.physical_memory_offset, // virt addr mapped to phys address 0
-    ];
+    allocator::init_heap(&mut mapper, &mut frame_allocator)
+        .expect("kernel_main: heap initialization failed");
 
-    for &address in &addresses {
-        let virt = VirtAddr::new(address);
-        let phys = mapper.translate_addr(virt);
-        println!("{:?} -> {:?}", virt, phys);
+    // allocate a number on the heap
+    let heap_value = Box::new(41);
+    println!("heap_value at {:p}", heap_value);
+
+    // create a dynamically sized vector
+    let mut vec = Vec::new();
+    for i in 0..500 {
+        vec.push(i);
     }
+    println!("vec at {:p}", vec.as_slice());
+
+    // create a reference counted vector -> will be freed when count reaches 0
+    let reference_counted = Rc::new(vec![1, 2, 3]);
+    let cloned_reference = reference_counted.clone();
+    println!("current reference count is {}", Rc::strong_count(&cloned_reference));
+    drop(reference_counted);
+    println!("reference count is {} now", Rc::strong_count(&cloned_reference));
 
     #[cfg(test)]
     test_main();
@@ -62,4 +74,3 @@ fn panic(info: &PanicInfo) -> ! {
 fn panic(info: &PanicInfo) -> ! {
     zos::test_panic_handler(info)
 }
-
