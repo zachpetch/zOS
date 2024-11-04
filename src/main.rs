@@ -19,10 +19,6 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use zos::allocator;
     use zos::memory::{self, BootInfoFrameAllocator};
 
-//    for i in ["World", "Handsome", "Zachariah"] {
-//        println!("Hello, {}!", i);
-//    }
-
     println!("Welcome!");
     zos::init();
 
